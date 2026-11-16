@@ -109,8 +109,8 @@ function Setup({ ctx, status, refresh }) {
         jsx('b', { children: 'Share this board' }), '; enter the address it shows. Kanzo on this computer then shows the shared board, ',
         'and your agents use it too. Install and start Kanzo here first.'] }),
     ] }),
-    jsxs(Note, { children: ['Board on a server, or Hermes running somewhere else? Set its address under ',
-      jsx('a', { href: '#', className: 'underline', onClick: e => { e.preventDefault(); openSettings(); }, children: 'Settings, Plugins, Kanzo Board' }), '.'] }),
+    !remote && jsxs(Note, { children: ['Board on a server, or Hermes running somewhere else? Set its address under ',
+      jsx('a', { href: '#', className: 'underline', onClick: e => { e.preventDefault(); openSettings(); }, children: 'Settings → Plugins → Kanzo Board' }), '.'] }),
     run.isError && jsx('p', { role: 'alert', className: 'text-sm text-destructive', children: errorText(run.error) }),
   ] }) });
 }
