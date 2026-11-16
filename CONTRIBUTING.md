@@ -10,7 +10,7 @@ Thanks for your interest! Bug reports, ideas and pull requests are all welcome.
   side.
 
 ## Development setup
-Requirements: Hermes Desktop 0.23.1 or newer, Python 3.9+, Node.js (for a syntax check), and Kanzo
+Requirements: Hermes Desktop 0.23.1 or newer, Python 3.11+, Node.js (for a syntax check), and Kanzo
 (or let the plugin install it).
 
 ```sh

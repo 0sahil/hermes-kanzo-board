@@ -4,3 +4,7 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    ignore:
+      # Pinned on purpose to the commit of the plugin's requires_hermes floor (see HERMES_REF in ci.yml);
+      # move it by hand together with requires_hermes.
+      - dependency-name: NousResearch/hermes-agent
