@@ -18,6 +18,8 @@ and an MCP server your agents work through. This plugin brings that board into H
 
 An unofficial community plugin; not made, reviewed or endorsed by the Kanzo or Hermes projects.
 
+![A Kanzo board with Todo, Doing and Review columns, open as a page in the Hermes desktop sidebar](docs/images/board.png)
+
 ## Requirements
 
 - Hermes Desktop **0.23.1** or newer, on macOS, Linux or Windows.
@@ -41,6 +43,8 @@ sidebar.
 ## Setting up the board
 
 The page finds your board by itself. If none answers, it offers what is missing:
+
+<img src="docs/images/setup.png" width="640" alt="The Kanzo page in Hermes when no board answers: a 'Connect a Kanzo board' screen with Try again and Plugin settings buttons">
 
 1. **Kanzo on this computer.**
    - Not installed: **Install Kanzo** downloads the official release from

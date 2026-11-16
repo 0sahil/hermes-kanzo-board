@@ -158,7 +158,13 @@ function Board({ ctx, status }) {
       try {
         switch (d.type) {
           case 'fetch':
-            return reply(await ctx.rest('/proxy', { method: 'POST', body: d.req, timeoutMs: 60000 }));
+            try {
+              return reply(await ctx.rest('/proxy', { method: 'POST', body: d.req, timeoutMs: 60000 }));
+            } catch (err) {
+              // The board went away: check now, so the page offers setup instead of a dead board.
+              qc.invalidateQueries({ queryKey: [ID, 'status'] });
+              throw err;
+            }
           case 'storage':
             return ctx.storage.set(STORAGE_KEY, d.data || {});
           case 'copy':

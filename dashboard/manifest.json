@@ -3,6 +3,6 @@
   "label": "Kanzo Board",
   "description": "Your Kanzo kanban board",
   "icon": "Database",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "api": "plugin_api.py"
 }
