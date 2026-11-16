@@ -1,6 +1,6 @@
 name: kanzo
-version: 0.1.0
-description: "Kanzo board as a native Desktop page (sidebar entry)."
+version: 0.2.0
+description: "Your Kanzo board (Kanzo's own web UI, from your running board) as a Hermes Desktop sidebar page."
 author: sahil
 requires_hermes: ">=0.21"
 provides_tools: []
