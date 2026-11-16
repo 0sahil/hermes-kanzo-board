@@ -1,0 +1,57 @@
+name: Bug report
+description: Something in the plugin isn't working
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Problems with the board itself (columns, tasks, Kanzo's MCP tools) belong in
+        [Kanzo's issues](https://github.com/emanuele-em/kanzo/issues). Use this form for the Hermes side:
+        the page, setup, or adding Kanzo's tools.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Kanzo in the Hermes sidebar
+        2. Click Install Kanzo
+        3. ...
+  - type: input
+    id: plugin
+    attributes:
+      label: Plugin version
+      description: "`hermes plugins list` shows it."
+    validations:
+      required: true
+  - type: input
+    id: hermes
+    attributes:
+      label: Hermes version
+      description: "`hermes --version`"
+    validations:
+      required: true
+  - type: input
+    id: kanzo
+    attributes:
+      label: Kanzo version
+      description: "`kanzo --version`, or \"not installed\""
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: e.g. macOS 15.2, Ubuntu 24.04, Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error message or logs
+      description: The message on the page, or lines mentioning kanzo-board from ~/.hermes/logs/desktop.log and agent.log. Remove anything private first.
+      render: text

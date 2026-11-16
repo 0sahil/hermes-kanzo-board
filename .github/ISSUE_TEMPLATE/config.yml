@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/0sahil/hermes-kanzo-board/security/advisories/new
+    about: Please report security issues privately.
+  - name: A problem with Kanzo itself
+    url: https://github.com/emanuele-em/kanzo/issues
+    about: The board, tasks and Kanzo's MCP tools are the Kanzo project's.

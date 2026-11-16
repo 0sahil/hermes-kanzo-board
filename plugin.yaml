@@ -1,5 +1,5 @@
 name: kanzo-board
-version: 0.3.0
+version: 0.1.0
 manifest_version: 2
 description: "Your Kanzo kanban board inside Hermes Desktop: a sidebar page that runs the board's own web UI, sets up Kanzo when it is missing, and can give the agent Kanzo's MCP tools."
 author: Sahil (0sahil)
