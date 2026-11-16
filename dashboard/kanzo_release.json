@@ -1,0 +1,36 @@
+{
+  "version": "0.4.2",
+  "repository": "https://github.com/emanuele-em/kanzo",
+  "download_base": "https://github.com/emanuele-em/kanzo/releases/download/v0.4.2/",
+  "license": "AGPL-3.0",
+  "assets": {
+    "aarch64-apple-darwin": {
+      "file": "kanzo-aarch64-apple-darwin.tar.xz",
+      "sha256": "9d30cd1eb33034e3e2cd542845fbe613bd938e6e6de8e9321c1f0026a4300085"
+    },
+    "aarch64-unknown-linux-musl": {
+      "file": "kanzo-aarch64-unknown-linux-musl.tar.xz",
+      "sha256": "80eda8efc44b4a393d210cc10cd2feb2608e32098b3ee9425d50fe60b7a97a43"
+    },
+    "arm-unknown-linux-musleabihf": {
+      "file": "kanzo-arm-unknown-linux-musleabihf.tar.xz",
+      "sha256": "30e0a8ad3b0a1976a063e19494ecf146365aca5cfcfd0fc96a8ed13fe53879d8"
+    },
+    "armv7-unknown-linux-musleabihf": {
+      "file": "kanzo-armv7-unknown-linux-musleabihf.tar.xz",
+      "sha256": "f5c34c31bd68032de817914b60ee38a57aa3fcbefbbcf88b2f660a566ee551cb"
+    },
+    "x86_64-apple-darwin": {
+      "file": "kanzo-x86_64-apple-darwin.tar.xz",
+      "sha256": "ab83e10fbf94d11115c793db2b392132ed6308691ac994f387407f5d3a001b3d"
+    },
+    "x86_64-pc-windows-msvc": {
+      "file": "kanzo-x86_64-pc-windows-msvc.zip",
+      "sha256": "9f4f565e9d0561b24622a13c084f9733a2c78af80d8c6f06dd80ba9b753b1d98"
+    },
+    "x86_64-unknown-linux-musl": {
+      "file": "kanzo-x86_64-unknown-linux-musl.tar.xz",
+      "sha256": "146c24e93c943158fae8fe35f070f49414a1f4754832312361dba895d3cbefea"
+    }
+  }
+}

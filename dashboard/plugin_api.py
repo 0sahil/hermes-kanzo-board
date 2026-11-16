@@ -1,15 +1,15 @@
-"""Kanzo for Hermes Desktop: backend for the embedded board.
+"""Kanzo Board: backend routes, mounted by Hermes at /api/plugins/kanzo-board/.
 
-The desktop page runs the user's own Kanzo web UI (fetched from their running
-board, never bundled) inside a sandboxed frame. The frame cannot reach the board
-itself, so every request it makes comes through here:
+Board (the page shows the board's own web UI in a sandboxed frame; see frame.py):
+    POST /shell    {"storage": {...}}  -> {"html", "base", "version"}
+    POST /proxy    one request from the frame to the board -> {"status","ctype","version","body","b64"}
 
-    POST /shell   -> {"html", "base", "version"}: the board's UI as one frame document
-                     (see frame.py); body {"storage": {...}} seeds its localStorage
-    POST /proxy   -> one request to the board, {"method","path","body","b64","ctype"}
-                     answered as {"status","ctype","version","body","b64"}
-
-Board URL: $KANZO_URL, else http://127.0.0.1:<port from $KANZO_HOME/config.toml or ~/kanzo>.
+Setup (each runs only when the user clicks the matching button on the page):
+    GET  /status                       -> board, Kanzo program, release and agent-tools state
+    POST /setup/install                -> install the pinned official Kanzo release
+    POST /setup/start  {"mode"}        -> "service" (kanzo service install) or "now" (kanzo --no-open)
+    POST /setup/join   {"host"}        -> kanzo join <host>
+    POST /setup/mcp                    -> hermes mcp add <kanzo's MCP server>
 """
 from __future__ import annotations
 
@@ -17,8 +17,6 @@ import base64
 import importlib.util
 import os
 import re
-import urllib.error
-import urllib.request
 from pathlib import Path
 from typing import Optional
 
@@ -26,46 +24,49 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 router = APIRouter()
-
+_HERE = Path(__file__).parent
 _TEXT = re.compile(r"^(text/|application/(json|javascript|xml|manifest\+json))")
 
 
-def _base() -> str:
-    if os.environ.get("KANZO_URL"):
-        return os.environ["KANZO_URL"].rstrip("/")
-    home = Path(os.environ.get("KANZO_HOME") or Path.home() / "kanzo")
-    port = 4242
-    try:
-        m = re.search(r"^\s*port\s*=\s*(\d+)", (home / "config.toml").read_text(), re.M)
-        if m:
-            port = int(m.group(1))
-    except OSError:
-        pass
-    return f"http://127.0.0.1:{port}"
-
-
-def _request(method: str, path: str, data: Optional[bytes] = None, ctype: Optional[str] = None):
-    if not path.startswith("/") or path.startswith("//"):
-        raise HTTPException(400, "path must be board-relative")
-    headers = {"Content-Type": ctype} if (data is not None and ctype) else {}
-    req = urllib.request.Request(_base() + path, data=data, method=method.upper(), headers=headers)
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            return r.status, r.headers, r.read()
-    except urllib.error.HTTPError as e:
-        return e.code, e.headers, e.read()
-    except Exception as e:
-        raise HTTPException(502, f"Kanzo board not reachable at {_base()}: {e}")
-
-
-def _frame():
-    """The sibling frame.py, loaded by path (the host imports this file with no package).
-    Loaded per request so a plugin update/reload never serves a stale copy; it is tiny."""
-    spec = importlib.util.spec_from_file_location("hermes_plugin_kanzo_frame", Path(__file__).with_name("frame.py"))
+def _sibling(name: str):
+    """A sibling module, loaded by path: Hermes imports this file without a package."""
+    spec = importlib.util.spec_from_file_location(f"hermes_plugin_kanzo_board_{name}", _HERE / f"{name}.py")
     assert spec is not None and spec.loader is not None
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+core = _sibling("kanzo_core")
+
+
+def _fail(e: Exception):
+    if isinstance(e, core.SetupError):
+        raise HTTPException(400, str(e))
+    raise HTTPException(500, f"{type(e).__name__}: {e}")
+
+
+def _data_dir() -> Path:
+    home = Path(os.environ.get("HERMES_HOME") or Path.home() / ".hermes")
+    return home / "plugin-data" / core.PLUGIN_ID
+
+
+def _status() -> dict:
+    url, source = core.board_url()
+    exe = core.find_kanzo()
+    rel = core.release()
+    tgt = core.target()
+    return {
+        "board": {"url": url, "source": source, **core.board_status(url)},
+        "kanzo": {"path": str(exe), "version": core.kanzo_version(exe)} if exe else None,
+        "release": {"version": rel["version"], "repository": rel["repository"],
+                    "supported": bool(tgt and tgt in rel["assets"]),
+                    "install_dir": str(core.install_dir())},
+        "mcp": {"server": core.mcp_server()},
+    }
+
+
+# --- board ----------------------------------------------------------------------------------------
 
 
 class ShellReq(BaseModel):
@@ -74,13 +75,16 @@ class ShellReq(BaseModel):
 
 @router.post("/shell")
 def shell(r: ShellReq):
-    s1, h1, index = _request("GET", "/")
-    s2, _, app = _request("GET", "/app.js")
-    if s1 != 200 or s2 != 200:
-        raise HTTPException(502, f"Kanzo board at {_base()} answered {s1}/{s2}")
-    base = _base() + "/"
-    html = _frame().build(index.decode("utf-8"), app.decode("utf-8"), base, r.storage or {})
-    return {"html": html, "base": base, "version": h1.get("x-kanzo-version")}
+    url, _ = core.board_url()
+    try:
+        s1, h1, index = core.board_request(url, "GET", "/")
+        s2, _, app = core.board_request(url, "GET", "/app.js")
+    except core.SetupError as e:
+        raise HTTPException(502, str(e))
+    if s1 != 200 or s2 != 200 or not h1.get("x-kanzo-version"):
+        raise HTTPException(502, f"{url} did not answer like a Kanzo board ({s1}/{s2}).")
+    html = _sibling("frame").build(index.decode("utf-8"), app.decode("utf-8"), url + "/", r.storage or {})
+    return {"html": html, "base": url + "/", "version": h1.get("x-kanzo-version")}
 
 
 class ProxyReq(BaseModel):
@@ -93,10 +97,14 @@ class ProxyReq(BaseModel):
 
 @router.post("/proxy")
 def proxy(r: ProxyReq):
+    url, _ = core.board_url()
     data = None
     if r.body is not None:
         data = base64.b64decode(r.body) if r.b64 else r.body.encode("utf-8")
-    status, headers, raw = _request(r.method, r.path, data, r.ctype)
+    try:
+        status, headers, raw = core.board_request(url, r.method, r.path, data, r.ctype)
+    except core.SetupError as e:
+        raise HTTPException(502, str(e))
     ctype = headers.get("content-type", "") if headers else ""
     out = {"status": status, "ctype": ctype, "version": headers.get("x-kanzo-version") if headers else None}
     if not raw or _TEXT.match(ctype or ""):
@@ -104,3 +112,82 @@ def proxy(r: ProxyReq):
     else:
         out.update(body=base64.b64encode(raw).decode("ascii"), b64=True)
     return out
+
+
+# --- setup ----------------------------------------------------------------------------------------
+
+
+@router.get("/status")
+def status():
+    try:
+        return _status()
+    except Exception as e:
+        _fail(e)
+
+
+@router.post("/setup/install")
+def setup_install():
+    try:
+        if core.find_kanzo() is None:
+            core.install_kanzo()
+        return _status()
+    except Exception as e:
+        _fail(e)
+
+
+class StartReq(BaseModel):
+    mode: str = "service"
+
+
+@router.post("/setup/start")
+def setup_start(r: StartReq):
+    try:
+        exe = core.find_kanzo()
+        if exe is None:
+            raise core.SetupError("Kanzo is not installed on this computer.")
+        url, source = core.board_url()
+        if source != "local":
+            raise core.SetupError("A board URL is set in the plugin settings; clear it to use this computer's board.")
+        if r.mode == "now":
+            core.start_now(exe, _data_dir())
+        elif r.mode == "service":
+            core.start_service(exe)
+        else:
+            raise core.SetupError("Unknown start mode.")
+        if not core.wait_for_board(url):
+            raise core.SetupError(f"Kanzo started but its board did not answer at {url} yet. Try again in a moment.")
+        return _status()
+    except Exception as e:
+        _fail(e)
+
+
+class JoinReq(BaseModel):
+    host: str
+
+
+@router.post("/setup/join")
+def setup_join(r: JoinReq):
+    try:
+        exe = core.find_kanzo()
+        if exe is None:
+            raise core.SetupError("Joining a shared board needs Kanzo on this computer; install it first.")
+        url, _ = core.board_url()
+        if not core.board_status(url)["reachable"]:
+            raise core.SetupError("Start this computer's board first; it shows the shared one once joined.")
+        core.join(exe, r.host)
+        return _status()
+    except Exception as e:
+        _fail(e)
+
+
+@router.post("/setup/mcp")
+def setup_mcp():
+    try:
+        url, source = core.board_url()
+        if source == "setting":  # a board elsewhere: its MCP endpoint over HTTP (Kanzo's mcp_http)
+            core.add_mcp(None, url)
+        else:  # this computer's board: Kanzo's stdio server, as Kanzo's README sets it up
+            core.add_mcp(core.find_kanzo(), None)
+        return _status()
+    except Exception as e:
+        _fail(e)

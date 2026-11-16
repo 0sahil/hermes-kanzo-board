@@ -1,7 +1,17 @@
-name: kanzo
-version: 0.2.0
-description: "Your Kanzo board (Kanzo's own web UI, from your running board) as a Hermes Desktop sidebar page."
-author: sahil
-requires_hermes: ">=0.21"
+name: kanzo-board
+version: 0.3.0
+manifest_version: 2
+description: "Your Kanzo kanban board inside Hermes Desktop: a sidebar page that runs the board's own web UI, sets up Kanzo when it is missing, and can give the agent Kanzo's MCP tools."
+author: Sahil (0sahil)
+license: MIT
+homepage: https://github.com/0sahil/hermes-kanzo-board
+tags: [desktop, kanban, kanzo, tasks]
+requires_hermes: ">=0.23.1"
 provides_tools: []
 provides_hooks: []
+config_schema:
+  board_url:
+    type: str
+    default: ""
+    label: Board URL
+    description: "Leave empty to use Kanzo on this computer. Set it for a board elsewhere, like http://192.168.1.20:4242 (the computer running Hermes must reach it)."
