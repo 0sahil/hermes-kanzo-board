@@ -179,22 +179,84 @@ def test_mcp_server_finds_kanzo():
     assert core.mcp_server({}) is None
 
 
-def test_add_mcp_runs_hermes_mcp_add(monkeypatch, tmp_path):
+def _fake_hermes_mcp_add(monkeypatch, saved=None, output=""):
+    """Stub `hermes mcp add`: record the call, then leave `saved` as the server's config entry."""
     calls = []
     monkeypatch.setattr(core, "_hermes", lambda: ["hermes"])
-    monkeypatch.setattr(core, "_run", lambda args, **kw: calls.append((args, kw)) or "")
+
+    def run(args, **kw):
+        calls.append((args, kw))
+        return output
+
+    monkeypatch.setattr(core, "_run", run)
+    monkeypatch.setattr(core, "hermes_config",
+                        lambda: {"mcp_servers": {calls[-1][0][3]: saved}} if saved is not None else {})
+    return calls
+
+
+def test_add_mcp_runs_hermes_mcp_add(monkeypatch, tmp_path):
+    calls = _fake_hermes_mcp_add(monkeypatch, saved={"command": "kanzo", "args": ["mcp"], "enabled": True})
     assert core.add_mcp(tmp_path / "kanzo", None, config={}) == "kanzo"
     args, kw = calls[0]
     assert args == ["hermes", "mcp", "add", "kanzo", "--command", str(tmp_path / "kanzo"), "--args", "mcp"]
-    assert kw["stdin"] == "Y\n"
+    # A blank line: "Enable all N tools?" defaults to all, and "Save config anyway?" to no.
+    assert kw["stdin"] == "\n"
+    assert kw["hermes"] is True  # Hermes itself keeps the full environment
 
 
 def test_add_mcp_uses_http_for_a_board_elsewhere(monkeypatch):
-    calls = []
-    monkeypatch.setattr(core, "_hermes", lambda: ["hermes"])
-    monkeypatch.setattr(core, "_run", lambda args, **kw: calls.append(args) or "")
+    calls = _fake_hermes_mcp_add(monkeypatch, saved={"url": "http://pi:4242/mcp", "enabled": True})
     core.add_mcp(None, "http://pi:4242", config={"mcp_servers": {"kanzo": {"command": "other"}}})
-    assert calls[0] == ["hermes", "mcp", "add", "kanzo-board", "--url", "http://pi:4242/mcp"]
+    args, kw = calls[0]
+    assert args == ["hermes", "mcp", "add", "kanzo-board", "--url", "http://pi:4242/mcp"]
+    # "Does this server require authentication?" comes first for a URL: no.
+    assert kw["stdin"] == "n\n\n"
+
+
+@pytest.mark.parametrize("saved", [None, {"url": "http://pi:4242/mcp", "enabled": False}])
+def test_add_mcp_fails_when_hermes_did_not_save_it(monkeypatch, saved):
+    output = "  \x1b[31m✗ Failed to connect: connection refused\x1b[0m\n"
+    _fake_hermes_mcp_add(monkeypatch, saved=saved, output=output)
+    with pytest.raises(core.SetupError, match="did not save.*Failed to connect: connection refused"):
+        core.add_mcp(None, "http://pi:4242", config={})
+
+
+def test_kanzo_env_drops_hermes_secrets():
+    env = core.kanzo_env({
+        "PATH": "/usr/bin", "HOME": "/home/me", "KANZO_HOME": "/k", "XDG_RUNTIME_DIR": "/run/user/1",
+        "LC_ALL": "C.UTF-8", "SSH_AUTH_SOCK": "/tmp/agent", "SystemRoot": r"C:\Windows",
+        "OPENROUTER_API_KEY": "sk-or", "ANTHROPIC_API_KEY": "sk-ant", "TELEGRAM_BOT_TOKEN": "t",
+        "HERMES_HOME": "/home/me/.hermes", "GITHUB_TOKEN": "ghp", "AWS_SECRET_ACCESS_KEY": "a",
+    })
+    assert env == {"PATH": "/usr/bin", "HOME": "/home/me", "KANZO_HOME": "/k", "XDG_RUNTIME_DIR": "/run/user/1",
+                   "LC_ALL": "C.UTF-8", "SSH_AUTH_SOCK": "/tmp/agent", "SystemRoot": r"C:\Windows"}
+
+
+def test_kanzo_programs_get_the_filtered_env(monkeypatch, tmp_path):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or")
+    monkeypatch.setenv("KANZO_HOME", str(tmp_path))
+    seen = []
+
+    class Done:
+        returncode, stdout, stderr = 0, "kanzo 0.4.2\n", ""
+
+    def fake(args, **kw):
+        seen.append((args, kw.get("env", "inherited")))
+        return Done()
+
+    monkeypatch.setattr(core.subprocess, "run", fake)
+    monkeypatch.setattr(core.subprocess, "Popen", fake)
+    exe = tmp_path / "kanzo"
+    core.kanzo_version(exe)
+    core.start_service(exe)
+    core.join(exe, "192.168.1.20")
+    core.start_now(exe, tmp_path / "logs")
+    core._run(["hermes", "mcp", "list"], hermes=True)
+    *kanzo_calls, hermes_call = seen
+    assert [a[1] for a, _ in kanzo_calls] == ["--version", "service", "join", "--no-open"]
+    for _, env in kanzo_calls:
+        assert isinstance(env, dict) and env["KANZO_HOME"] == str(tmp_path) and "OPENROUTER_API_KEY" not in env
+    assert hermes_call[1] is None  # Hermes itself: inherits
 
 
 def test_add_mcp_keeps_an_existing_server(monkeypatch):

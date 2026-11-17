@@ -27,12 +27,13 @@ import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Mapping, Optional
 
 PLUGIN_ID = "kanzo-board"
 DEFAULT_PORT = 4242
 RELEASE_FILE = Path(__file__).with_name("kanzo_release.json")
 EXE = "kanzo.exe" if os.name == "nt" else "kanzo"
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 _HOST_RE = re.compile(r"^(?:\[[0-9A-Fa-f:.]+\]|[A-Za-z0-9](?:[A-Za-z0-9.-]{0,253}[A-Za-z0-9])?)(?::\d{1,5})?$")
 
 
@@ -164,9 +165,31 @@ def find_kanzo() -> Optional[Path]:
     return None
 
 
+# What a `kanzo` process gets from Hermes' environment: enough to find its folders, run its service
+# manager (launchctl, systemctl --user, schtasks) and git over ssh, and nothing else, so Hermes'
+# provider keys never reach it. Compared upper-cased (Windows names are case-insensitive).
+_ENV_KEEP = frozenset({
+    "PATH", "HOME", "USER", "LOGNAME", "TMPDIR", "TEMP", "TMP", "TZ", "LANG", "LANGUAGE",
+    "CARGO_HOME", "DBUS_SESSION_BUS_ADDRESS", "SSH_AUTH_SOCK", "DISPLAY", "WAYLAND_DISPLAY",
+    "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY",
+    # Windows
+    "USERPROFILE", "USERNAME", "HOMEDRIVE", "HOMEPATH", "APPDATA", "LOCALAPPDATA", "PROGRAMDATA",
+    "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC", "PATHEXT",
+})
+_ENV_KEEP_PREFIXES = ("KANZO_", "XDG_", "LC_")
+
+
+def kanzo_env(environ: Optional[Mapping[str, str]] = None) -> dict[str, str]:
+    """The environment for a `kanzo` process: Hermes' own, filtered to `_ENV_KEEP`."""
+    source: Mapping[str, str] = os.environ if environ is None else environ
+    return {k: v for k, v in source.items()
+            if k.upper() in _ENV_KEEP or k.upper().startswith(_ENV_KEEP_PREFIXES)}
+
+
 def kanzo_version(exe: Path) -> Optional[str]:
     try:
-        out = subprocess.run([str(exe), "--version"], capture_output=True, text=True, timeout=10)
+        out = subprocess.run([str(exe), "--version"], capture_output=True, text=True, timeout=10,
+                             env=kanzo_env())
     except Exception:
         return None
     m = re.search(r"(\d+\.\d+\.\d+\S*)", out.stdout or "")
@@ -233,9 +256,12 @@ def install_kanzo(dest_dir: Optional[Path] = None, fetch=_download) -> Path:
     return dest
 
 
-def _run(args: list[str], timeout: float = 60, stdin: Optional[str] = None) -> str:
+def _run(args: list[str], timeout: float = 60, stdin: Optional[str] = None, hermes: bool = False) -> str:
+    """Run a program to completion. `kanzo` gets `kanzo_env()`; only Hermes itself (`hermes=True`)
+    inherits the full environment."""
     try:
-        out = subprocess.run(args, capture_output=True, text=True, timeout=timeout, input=stdin)
+        out = subprocess.run(args, capture_output=True, text=True, timeout=timeout, input=stdin,
+                             env=None if hermes else kanzo_env())
     except subprocess.TimeoutExpired:
         raise SetupError(f"`{' '.join(Path(args[0]).name if i == 0 else a for i, a in enumerate(args))}` took too long.")
     except OSError as e:
@@ -264,7 +290,7 @@ def start_now(exe: Path, log_dir: Path) -> None:
     """Start `kanzo --no-open` in the background, detached from Hermes."""
     log_dir.mkdir(parents=True, exist_ok=True)
     log = open(log_dir / "kanzo.log", "ab")
-    kwargs: dict[str, Any] = {"stdin": subprocess.DEVNULL, "stdout": log, "stderr": log}
+    kwargs: dict[str, Any] = {"stdin": subprocess.DEVNULL, "stdout": log, "stderr": log, "env": kanzo_env()}
     if os.name == "nt":
         kwargs["creationflags"] = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
     else:
@@ -329,6 +355,15 @@ def add_mcp(exe: Optional[Path], url: Optional[str], config: Optional[dict] = No
         args = [*_hermes(), "mcp", "add", name, "--url", url.rstrip("/") + "/mcp"]
     else:
         raise SetupError("Install Kanzo on this computer first; its MCP server runs from the kanzo program.")
-    # `hermes mcp add` connects, lists the tools and asks "Enable all N tools?"; answer yes.
-    _run(args, timeout=90, stdin="Y\n")
+    # `hermes mcp add` asks, in order: for --url only, "Does this server require authentication?"
+    # (no: Kanzo has no login); then, once connected, "Enable all N tools? [Y/n/select]", where a
+    # blank line enables all. Blank, not "Y": if the server cannot be reached, that second answer
+    # goes to "Save config anyway?" instead, and blank keeps its default, which is not to save.
+    out = _run(args, timeout=90, stdin="\n" if exe is not None else "n\n\n", hermes=True)
+    entry = ((hermes_config().get("mcp_servers") or {}).get(name))
+    if not isinstance(entry, dict) or entry.get("enabled") is False:
+        lines = [_ANSI_RE.sub("", ln).strip(" ✗⚠") for ln in (out or "").splitlines()]
+        reason = next((ln for ln in reversed(lines) if ln.startswith(("Failed", "Cancelled"))), "")
+        raise SetupError("Hermes did not save Kanzo's MCP server" + (f": {reason}" if reason else ".")
+                         + f" Run `hermes mcp add {name} …` in a terminal to see why.")
     return name

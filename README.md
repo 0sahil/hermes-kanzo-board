@@ -112,11 +112,14 @@ Everything below happens only when you open the page or click a setup button.
   telemetry, no update checks of its own.
 - **Programs it runs.** `kanzo --version` (to show what is installed), and when you click them:
   `kanzo service install`, `kanzo --no-open`, `kanzo join <address>` and
-  `hermes mcp add kanzo …`.
+  `hermes mcp add kanzo …`. `kanzo` gets only the environment it needs (`PATH`, your home and
+  temp folders, `KANZO_*`, `CARGO_HOME`, `XDG_*`, locale, `SSH_AUTH_SOCK` for syncing over ssh,
+  proxy settings, and the Windows system folders); Hermes' API keys and other settings are not
+  passed to it.
 - **Files it reads.** Kanzo's `config.toml` (in `$KANZO_HOME`, else `~/kanzo`) for the board's
   port, and Hermes' configuration (read-only) for this plugin's settings and existing MCP servers.
 - **Files it writes.** The `kanzo` program when you install it; Kanzo's UI settings in the plugin's
-  storage; `kanzo.log` in `$HERMES_HOME/plugin-data/kanzo-board/` after **Start once**.
+  storage; `kanzo.log` in `plugin-data/kanzo-board/` in the active profile's Hermes home after **Start once**.
   `kanzo service install` and `kanzo join` change Kanzo's own setup, and **Add Kanzo tools** adds
   an `mcp_servers` entry to Hermes' configuration.
 - **Kanzo has no login.** Anyone who can reach a board can read and change it, and so can this

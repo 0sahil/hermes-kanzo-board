@@ -6,6 +6,19 @@ All notable changes to Kanzo Board for Hermes are documented here. The format is
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-17
+
+### Security
+- `kanzo` now runs with a minimal environment instead of Hermes' full one, so Hermes' provider
+  keys never reach it or the board started with **Start once**.
+
+### Fixed
+- **Add Kanzo tools** for a board on another computer: `hermes mcp add` asks about authentication
+  first, which used up the answer meant for "Enable all tools?", so nothing was saved while the
+  page reported success. Each prompt now gets its own answer, and the page checks that Hermes saved
+  the server before saying it did.
+- `kanzo.log` goes to the active profile's Hermes home.
+
 ## [0.1.1] - 2026-11-17
 
 ### Fixed
@@ -29,6 +42,7 @@ First public release.
 - **Add Kanzo tools**: adds Kanzo's MCP server to Hermes so the agent can work on the board.
 - ⌘K command "Open Kanzo board".
 
-[Unreleased]: https://github.com/0sahil/hermes-kanzo-board/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/0sahil/hermes-kanzo-board/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/0sahil/hermes-kanzo-board/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/0sahil/hermes-kanzo-board/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/0sahil/hermes-kanzo-board/releases/tag/v0.1.0

@@ -47,7 +47,12 @@ def _fail(e: Exception):
 
 
 def _data_dir() -> Path:
-    home = Path(os.environ.get("HERMES_HOME") or Path.home() / ".hermes")
+    """`plugin-data/kanzo-board` in the active profile's Hermes home."""
+    try:
+        from hermes_constants import get_hermes_home
+        home = Path(get_hermes_home())
+    except Exception:
+        home = Path(os.environ.get("HERMES_HOME") or Path.home() / ".hermes")
     return home / "plugin-data" / core.PLUGIN_ID
 
 
