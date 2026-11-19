@@ -1,0 +1,85 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css">
+<style>
+html, body { width: 1280px; height: 360px; }
+body { padding: 0; position: relative; }
+.glow { position: absolute; left: -180px; top: -300px; width: 700px; height: 700px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(167,139,250,.14), transparent 62%); }
+.left { position: absolute; left: 0; top: 0; bottom: 0; width: 600px; display: flex; flex-direction: column; justify-content: center; }
+.mark { width: 76px; height: 76px; }
+.name { font-size: 60px; font-weight: 700; letter-spacing: -.035em; line-height: 1; margin-top: 0; }
+.for { font-size: 19px; color: var(--muted); font-weight: 500; margin-top: 12px; }
+.for b { color: var(--text); font-weight: 600; }
+.tag { font-size: 20px; line-height: 1.4; margin-top: 18px; color: #c9d4e0; max-width: 500px; letter-spacing: -.01em; }
+.chips { display: flex; gap: 8px; margin-top: 20px; }
+.chips span { font: 12.5px var(--mono); padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); color: #b4bfd0; background: rgba(17,23,31,.8); }
+.right { position: absolute; right: 0; top: 44px; width: 560px; }
+.fade { position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, var(--bg) 0%, rgba(11,15,20,0) 16%), linear-gradient(0deg, var(--bg) 4%, rgba(11,15,20,0) 40%); }
+.page { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+.page .hd { display: flex; gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+.page .hd b { color: var(--text); font-weight: 600; }
+.page .hd .sp { flex: 1; }
+.page .hd .srch { font-size: 12.5px; border: 1px solid var(--line); border-radius: 7px; padding: 3px 12px; color: var(--dim); }
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 14px; }
+.col h4 { font-size: 13px; font-weight: 600; color: var(--muted); display: flex; justify-content: space-between; margin: 2px 2px 10px; }
+.col h4 span { color: var(--dim); font-weight: 500; }
+.card { background: var(--card2); border: 1px solid var(--line); border-radius: 9px; padding: 12px 12px; margin-bottom: 10px; font-size: 13px; line-height: 1.4; }
+.card .meta { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+.lab { font: 10.5px var(--mono); padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line); color: #b4bfd0; }
+.lab.v { border-color: rgba(167,139,250,.5); color: #c4b5fd; }
+.who { margin-left: auto; font: 10.5px var(--mono); color: var(--dim); }
+.card.agent { border-color: rgba(167,139,250,.55); box-shadow: 0 0 18px rgba(167,139,250,.12); }
+</style>
+<style id="transparent">
+html, body { background: transparent !important; background-image: none !important; }
+.glow, .fade { display: none !important; }
+.right { -webkit-mask-image: linear-gradient(0deg, transparent 0, #000 46%); mask-image: linear-gradient(0deg, transparent 0, #000 46%); }
+.pane, .page { box-shadow: none !important; }
+html.light { --text: #1f2328; --muted: #59636e; --dim: #8c959f; --card: #ffffff; --card2: #f6f8fa; --line: #d1d9e0; }
+html.light .tag { color: #3d444d !important; }
+html.light .chips span { color: #3d444d; background: #f6f8fa; }
+html.light .row { border-bottom-color: #eaeef2 !important; }
+html.light .log { border-bottom-color: #eaeef2 !important; }
+html.light .seg .on { background: #eaeef2; }
+html.light .log .k.tool { color: #0969da; }
+html.light .lab { color: #3d444d; }
+</style>
+<script>if (location.hash === '#light') document.documentElement.classList.add('light');</script>
+<style>html.light { --accent: #7c3aed; --accent-soft: rgba(124,58,237,.12); }
+html.light .lab.v { color: #6d28d9; border-color: rgba(124,58,237,.45); }
+html.light .card.agent { border-color: rgba(124,58,237,.5); box-shadow: 0 0 16px rgba(124,58,237,.12); }</style></head><body>
+<div class="glow"></div>
+<div class="right">
+  <div class="page">
+    <div class="hd"><b>Kanzo</b><span>· Product</span><span class="sp"></span><span class="srch">Search tasks</span></div>
+    <div class="cols">
+      <div class="col"><h4>Todo <span>5</span></h4>
+        <div class="card">Write release notes<div class="meta"><span class="lab">docs</span><span class="who">you</span></div></div>
+        <div class="card">Fix login redirect<div class="meta"><span class="lab">bug</span><span class="who">you</span></div></div>
+        <div class="card">Try the new theme<div class="meta"><span class="lab">design</span></div></div>
+        <div class="card">Clean up old branches<div class="meta"><span class="lab">chore</span></div></div>
+        <div class="card">Plan the Q3 roadmap<div class="meta"><span class="lab">planning</span><span class="who">you</span></div></div>
+      </div>
+      <div class="col"><h4>Doing <span>4</span></h4>
+        <div class="card agent">Look into the flaky sync test<div class="meta"><span class="lab v">agent</span><span class="who">hermes</span></div></div>
+        <div class="card">Onboarding copy<div class="meta"><span class="lab">docs</span><span class="who">you</span></div></div>
+        <div class="card">Benchmark the search index<div class="meta"><span class="lab">perf</span><span class="who">you</span></div></div>
+        <div class="card">Update the pricing page<div class="meta"><span class="lab">web</span><span class="who">you</span></div></div>
+      </div>
+      <div class="col"><h4>Review <span>4</span></h4>
+        <div class="card">Settings page layout<div class="meta"><span class="lab">design</span><span class="who">you</span></div></div>
+        <div class="card agent">Add CSV export<div class="meta"><span class="lab v">agent</span><span class="who">hermes</span></div></div>
+        <div class="card">Retry failed webhooks<div class="meta"><span class="lab">backend</span><span class="who">you</span></div></div>
+        <div class="card">Email digest template<div class="meta"><span class="lab">design</span><span class="who">you</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="fade"></div>
+</div>
+<div class="left">
+  <div class="name">Kanzo Board</div>
+  <div class="for">a plugin for <b>Hermes</b></div>
+  <div class="tag">Your Kanzo board inside Hermes, with your agent working on the same tasks.</div>
+  <div class="chips"><span>the real board</span><span>MCP tools</span><span>one-click setup</span></div>
+</div>
+</body></html>

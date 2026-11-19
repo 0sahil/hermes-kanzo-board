@@ -1,10 +1,13 @@
-# Kanzo Board for Hermes
+![Kanzo Board, a plugin for Hermes: your Kanzo board inside Hermes, with your agent working on the same tasks](docs/images/header-dark.png#gh-dark-mode-only)
+![Kanzo Board, a plugin for Hermes: your Kanzo board inside Hermes, with your agent working on the same tasks](docs/images/header-light.png#gh-light-mode-only)
 
 [![Hermes plugin catalog](https://img.shields.io/badge/Hermes_plugin_catalog-listed-7c3aed)](https://hermes-agent.nousresearch.com/marketplace/kanzo-board)
 [![CI](https://github.com/0sahil/hermes-kanzo-board/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/0sahil/hermes-kanzo-board/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/0sahil/hermes-kanzo-board)](https://github.com/0sahil/hermes-kanzo-board/releases/latest)
 [![Hermes ≥ 0.23.1](https://img.shields.io/badge/Hermes-%E2%89%A5%200.23.1-blue)](plugin.yaml)
 [![License: MIT](https://img.shields.io/github/license/0sahil/hermes-kanzo-board)](LICENSE)
+
+[Install](#install) · [Setting up the board](#setting-up-the-board) · [Let the agent use the board](#let-the-agent-use-the-board) · [How it works](#how-it-works) · [Uninstall](#uninstall)
 
 Your [Kanzo](https://github.com/emanuele-em/kanzo) board inside the
 [Hermes](https://github.com/NousResearch/hermes-agent) desktop app, one click away in the sidebar,

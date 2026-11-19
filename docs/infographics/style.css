@@ -1,0 +1,25 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0b0f14; --card: #11171f; --card2: #0e141b; --line: #233042; --text: #e6edf3;
+  --muted: #8b98a9; --dim: #5b6778; --accent: #a78bfa; --accent-soft: rgba(167, 139, 250, .14);
+  --amber: #fbbf24; --rose: #fb7185;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+html, body { width: 1200px; height: 600px; background: var(--bg); color: var(--text); font-family: var(--sans); overflow: hidden; }
+body {
+  padding: 44px 52px;
+  background-image: radial-gradient(circle at 1px 1px, #1a2230 1px, transparent 0);
+  background-size: 28px 28px;
+}
+.eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+h1 { font-size: 30px; font-weight: 650; letter-spacing: -.01em; margin-top: 10px; }
+.sub { color: var(--muted); font-size: 15px; margin-top: 8px; }
+.mono { font-family: var(--mono); }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; }
+.dot.run { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.dot.quiet { background: var(--amber); }
+.dot.done { background: #64748b; }
+.foot { position: absolute; left: 52px; right: 52px; bottom: 34px; display: flex; gap: 22px; color: var(--muted); font-size: 13.5px; align-items: center; }
+.foot b { color: var(--text); font-weight: 600; }
+.foot .sep { width: 4px; height: 4px; border-radius: 50%; background: var(--dim); }
