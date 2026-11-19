@@ -28,13 +28,25 @@ An unofficial community plugin; not made, reviewed or endorsed by the Kanzo or H
 
 ## Install
 
+Kanzo Board is listed in the [Hermes plugin catalog](https://hermes-agent.nousresearch.com/marketplace/kanzo-board):
+
+```sh
+hermes plugins install kanzo-board --enable
+hermes gateway restart
+```
+
+Or in Hermes Desktop: **Capabilities → Plugins**, search for **Kanzo Board**, and install.
+
+This installs the commit the catalog reviewed, which can trail this repository's `main`.
+`hermes plugins update kanzo-board` moves it to the next reviewed version.
+
+To run the newest code before it reaches the catalog (same plugin, newest `main`, not
+catalog-reviewed), install from this repository instead:
+
 ```sh
 hermes plugins install 0sahil/hermes-kanzo-board --enable
 hermes gateway restart
 ```
-
-Or in Hermes Desktop: **Capabilities → Plugins → Install**, paste `0sahil/hermes-kanzo-board`, check
-the commit it shows, and install.
 
 Then, in **Capabilities → Plugins**, make sure both switches on the Kanzo Board row are on:
 **Agent** (the backend that talks to the board) and **Desktop** (the page). Open **Kanzo** in the
