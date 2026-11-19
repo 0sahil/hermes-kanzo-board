@@ -1,0 +1,71 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css">
+<style>
+.top { display: flex; align-items: center; gap: 14px; margin-top: 30px; }
+.pill { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 10px 16px; font-size: 14px; display: flex; gap: 10px; align-items: center; }
+.pill.ok { border-color: rgba(167,139,250,.55); background: linear-gradient(90deg, rgba(167,139,250,.10), var(--card)); }
+.pill small { color: var(--muted); font-size: 12.5px; }
+.ar { color: var(--dim); display: grid; place-items: center; }
+.yes, .no { font: 600 10.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.yes { color: var(--accent); } .no { color: var(--amber); }
+.branch { margin-top: 26px; display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13.5px; }
+.branch .ln { flex: 1; height: 1px; background: var(--line); }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+.card { border: 1px solid var(--line); border-radius: 14px; background: var(--card); padding: 16px 18px; display: flex; flex-direction: column; min-height: 262px; }
+.state { display: flex; gap: 9px; align-items: center; font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--amber); }
+.state .dot { background: var(--amber); }
+.card h3 { font-size: 16px; font-weight: 600; margin-top: 12px; }
+.card p { color: var(--muted); font-size: 12.5px; line-height: 1.55; margin-top: 6px; }
+.cmd { margin-top: auto; padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.cmd div { background: var(--card2); border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; font: 11px var(--mono); color: #b4bfd0; }
+</style><style id="transparent">
+html, body { background: transparent !important; background-image: none !important; }
+body { padding: 6px 0 !important; }
+html, body { height: auto !important; }
+.foot { position: static !important; margin-top: 30px; }
+.panel.after, .box.hi { box-shadow: none !important; }
+html.light { --text: #1f2328; --muted: #59636e; --dim: #8c959f; --card: #ffffff; --card2: #f6f8fa; --line: #d1d9e0; }
+html.light .code div, html.light .chips span, html.light .cmd div { color: #3d444d !important; }
+html.light .q i { border-color: #afb8c1; }
+html.light .seg .on { background: #eaeef2; }
+html.light .row { border-bottom-color: #eaeef2 !important; }
+html.light .log .k.tool { color: #0969da; }
+html.light .zone { border-color: #c8d1da; }
+html.light .foot .sep { background: #afb8c1; }
+html.light .dot.quiet, html.light .state .dot { background: #d97706; }
+html.light .no, html.light .state { color: #b45309 !important; }
+</style>
+<script>if (location.hash === '#light') document.documentElement.classList.add('light');</script>
+<style>html.light { --accent: #7c3aed; --accent-soft: rgba(124,58,237,.12); } html.light .pill.ok { background: linear-gradient(90deg, rgba(124,58,237,.08), #fff); }</style></head><body>
+<div class="eyebrow">Setting up the board</div>
+<h1>The page finds your board, or offers the one step missing</h1>
+<div class="top">
+  <div class="pill">Open <b>Kanzo</b> in the sidebar</div>
+  <div class="ar"><svg width="26" height="14" viewBox="0 0 26 14"><path d="M1 7h22M18 2l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <div class="pill">Does a board answer?</div>
+  <div class="ar"><svg width="26" height="14" viewBox="0 0 26 14"><path d="M1 7h22M18 2l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <span class="yes">yes</span>
+  <div class="pill ok"><span class="dot run"></span><b>Your board</b><small>then one click for Kanzo's MCP tools</small></div>
+</div>
+<div class="branch"><span class="no">no</span><span>the page shows only the next step, and runs it when you click</span><span class="ln"></span></div>
+<div class="cards">
+  <div class="card">
+    <div class="state"><span class="dot"></span>Kanzo not installed</div>
+    <h3>Install Kanzo</h3>
+    <p>Downloads Kanzo's official release, checks it against a SHA-256 pinned in the plugin, and puts it where Kanzo's own installer does. Never replaces one already there.</p>
+    <div class="cmd"><div>github.com/emanuele-em/kanzo releases</div></div>
+  </div>
+  <div class="card">
+    <div class="state"><span class="dot"></span>Installed, not running</div>
+    <h3>Start the board</h3>
+    <p>Keep it running with Kanzo's own login service, or start it once until you log out.</p>
+    <div class="cmd"><div>kanzo service install</div><div>kanzo --no-open</div></div>
+  </div>
+  <div class="card">
+    <div class="state"><span class="dot"></span>Board is elsewhere</div>
+    <h3>Join or point to it</h3>
+    <p>Join a board another computer shares, or set a Board URL for one on a server.</p>
+    <div class="cmd"><div>kanzo join &lt;address&gt;</div><div>Settings → Board URL</div></div>
+  </div>
+</div>
+<div class="foot"><span><b>Nothing runs without your click</b></span><span class="sep"></span><span>Kanzo gets a minimal environment, never Hermes' API keys</span><span class="sep"></span><span>macOS, Linux, Windows</span></div>
+</body></html>

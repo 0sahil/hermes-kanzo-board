@@ -29,6 +29,9 @@ An unofficial community plugin; not made, reviewed or endorsed by the Kanzo or H
 
 ![A Kanzo board with Todo, Doing and Review columns, open as a page in the Hermes desktop sidebar](docs/images/board.png)
 
+![How it fits together: the Kanzo page in Hermes and your agent both reach your own Kanzo board, through the plugin backend and Kanzo's MCP tools](docs/images/how-it-works-dark.png#gh-dark-mode-only)
+![How it fits together: the Kanzo page in Hermes and your agent both reach your own Kanzo board, through the plugin backend and Kanzo's MCP tools](docs/images/how-it-works-light.png#gh-light-mode-only)
+
 ## Requirements
 
 - Hermes Desktop **0.23.1** or newer, on macOS, Linux or Windows.
@@ -62,6 +65,9 @@ Then, in **Capabilities → Plugins**, make sure both switches on the Kanzo Boar
 sidebar.
 
 ## Setting up the board
+
+![The page checks whether a board answers; if not, it offers to install Kanzo, start it, or join or point to a board elsewhere](docs/images/setup-flow-dark.png#gh-dark-mode-only)
+![The page checks whether a board answers; if not, it offers to install Kanzo, start it, or join or point to a board elsewhere](docs/images/setup-flow-light.png#gh-light-mode-only)
 
 The page finds your board by itself. If none answers, it offers what is missing:
 
