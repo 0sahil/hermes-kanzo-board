@@ -1,5 +1,11 @@
 # Kanzo Board for Hermes
 
+[![Hermes plugin catalog](https://img.shields.io/badge/Hermes_plugin_catalog-listed-7c3aed)](https://hermes-agent.nousresearch.com/marketplace/kanzo-board)
+[![CI](https://github.com/0sahil/hermes-kanzo-board/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/0sahil/hermes-kanzo-board/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/0sahil/hermes-kanzo-board)](https://github.com/0sahil/hermes-kanzo-board/releases/latest)
+[![Hermes ≥ 0.23.1](https://img.shields.io/badge/Hermes-%E2%89%A5%200.23.1-blue)](plugin.yaml)
+[![License: MIT](https://img.shields.io/github/license/0sahil/hermes-kanzo-board)](LICENSE)
+
 Your [Kanzo](https://github.com/emanuele-em/kanzo) board inside the
 [Hermes](https://github.com/NousResearch/hermes-agent) desktop app, one click away in the sidebar,
 so you can plan with your agent without switching to a browser tab.
