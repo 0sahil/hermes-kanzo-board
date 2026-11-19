@@ -7,4 +7,6 @@ updates:
     ignore:
       # Pinned on purpose to the commit of the plugin's requires_hermes floor (see HERMES_REF in ci.yml);
       # move it by hand together with requires_hermes.
-      - dependency-name: NousResearch/hermes-agent
+      # The validator is a subpath action (NousResearch/hermes-agent/.github/actions/plugin-validate),
+      # which a bare repo name does not match, so match the prefix.
+      - dependency-name: NousResearch/hermes-agent*
